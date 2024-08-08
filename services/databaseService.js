@@ -16,17 +16,36 @@ const databaseService = () => {
 
 
   const leerAsistencia = () => {
-    return knex(table).select();
+    return knex(table)
+    .select();
   };
 
-  // const marcarAsistencia = (qr_alumno, id_estado) =>{
-  //   return knex(table)
-  //   .insert({
-  //     qr_alumno: qr_alumno,
-  //     id_estado: id_estado
-  //   }); //retorna una promesa
-  // };
+  const marcarAsistencia = (qr_alumno, id_estado) =>{
+    return knex(table)
+    .insert({
+      qr_alumno: qr_alumno,
+      id_estado: id_estado
+    }); //retorna una promesa
+  };
 
+  const verificarAsistenciaExistente = (qr_alumno) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Convertir la fecha actual a una cadena en el formato 'YYYY-MM-DD'
+    const todayString = today.toISOString().split('T')[0];
+    return knex(table)
+        .where('qr_alumno', qr_alumno)
+        .andWhere('fecha', 'like', `${todayString}%`)
+        .then(rows => {
+            
+            if (rows.length > 0) {
+                return true;
+            }
+         
+            return false;
+        });
+  };
+  
   const marcAttendance = (qr_alumno, id_estado) => {
      return knex(table)
     .where({
@@ -38,9 +57,10 @@ const databaseService = () => {
   };
 
   return {
-    // marcarAsistencia,
+    marcarAsistencia,
     leerAsistencia,
-    marcAttendance
+    verificarAsistenciaExistente
+    // marcAttendance
   }
 };
 
